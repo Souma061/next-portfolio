@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-amber-primary: #e86b1c;
+    --color-amber-shadow: #b84a0f;
+    --color-amber-glow: rgba(232, 107, 28, 0.25);
+    --color-amber-subtle: rgba(232, 107, 28, 0.08);
+
+    --color-navy-void: #0b0f15;
+    --color-navy-surface: #10151f;
+    --color-navy-card: #161e2b;
+    --color-navy-elevated: #1e2838;
+    --color-navy-border: #283548;
+
+    --color-cream-text: #f3e6d5;
+    --color-cream-muted: #b8aba0;
+    --color-cream-dim: #7f756d;
+  }
+
+  body {
+    background-color: #0b0f15;
+    color: #f3e6d5;
+    overflow-x: hidden;
+  }
+}
+
+.bg-starfield {
+  background-color: #0b0f15;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 40px 60px, rgba(243, 230, 213, 0.35), transparent),
+    radial-gradient(1px 1px at 150px 120px, rgba(232, 107, 28, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 280px 240px, rgba(243, 230, 213, 0.3), transparent),
+    radial-gradient(1px 1px at 450px 90px, rgba(243, 230, 213, 0.25), transparent),
+    radial-gradient(1.5px 1.5px at 600px 320px, rgba(232, 107, 28, 0.4), transparent),
+    radial-gradient(1px 1px at 750px 180px, rgba(243, 230, 213, 0.3), transparent),
+    radial-gradient(1.5px 1.5px at 900px 420px, rgba(243, 230, 213, 0.25), transparent),
+    radial-gradient(1px 1px at 1100px 150px, rgba(232, 107, 28, 0.45), transparent),
+    linear-gradient(rgba(24, 31, 44, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 31, 44, 0.15) 1px, transparent 1px);
+  background-size: 1200px 600px, 1200px 600px, 1200px 600px, 1200px 600px, 1200px 600px, 1200px 600px, 1200px 600px, 1200px 600px, 48px 48px, 48px 48px;
+}
+
+.spotlight-card {
+  position: relative;
+  background-color: #121822;
+  border: 1px solid #232e40;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(232, 107, 28, 0.08),
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+.spotlight-card:hover {
+  border-color: rgba(232, 107, 28, 0.45);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0f15;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #232e40;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e86b1c;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
