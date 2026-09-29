@@ -49,7 +49,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs font-bold text-[#e86b1c]">
-                SYS-0{currentIndex + 1} {"//"} CASE STUDY
+                SYS-0{currentIndex + 1} // CASE STUDY
               </span>
               <TechBadge variant="status" size="sm">
                 {project.statusBadge}
@@ -101,7 +101,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
         <div className="py-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-[#232e40]">
           <div className="space-y-3">
             <div className="font-mono text-xs font-bold text-[#e86b1c] uppercase tracking-wider">
-              01 {"//"} Architectural Thesis
+              01 // Architectural Thesis
             </div>
             <p className="text-sm sm:text-base text-[#f3e6d5] leading-relaxed">
               {project.summary}
@@ -122,7 +122,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
         <div className="py-14 border-b border-[#232e40]">
           <div className="mb-8">
             <div className="font-mono text-xs text-[#e86b1c] uppercase tracking-widest mb-1">
-              02 {"//"} PIPELINE DATAFLOW
+              02 // PIPELINE DATAFLOW
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#f3e6d5]">
               End-to-End Execution Sequence
@@ -203,7 +203,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
         <div className="py-14 border-b border-[#232e40]">
           <div className="mb-8">
             <div className="font-mono text-xs text-[#e86b1c] uppercase tracking-widest mb-1">
-              04 {"//"} ADVERSARIAL STRESS TESTING
+              04 // ADVERSARIAL STRESS TESTING
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#f3e6d5]">
               Chaos Injection Scenarios
@@ -256,7 +256,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
         <div className="py-14 border-b border-[#232e40]">
           <div className="mb-8">
             <div className="font-mono text-xs text-[#e86b1c] uppercase tracking-widest mb-1">
-              05 {"//"} SOURCE CODE SNIPPET
+              05 // SOURCE CODE SNIPPET
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#f3e6d5]">
               Core Algorithm Implementation

@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { HeroSection } from "@/components/home/HeroSection";
 import { HeroLogoMarquee } from "@/components/home/HeroLogoMarquee";
-import { HardwareReceiptsSection } from "@/components/home/HardwareReceiptsSection";
 import { ProjectsSection } from "@/components/home/ProjectsSection";
 import { SkillsSection } from "@/components/home/SkillsSection";
 import { PERSONAL_INFO } from "@/data/socialLinks";
@@ -16,7 +15,6 @@ export default function HomePage() {
       <HeroLogoMarquee />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <HardwareReceiptsSection />
         <ProjectsSection />
         <SkillsSection />
 

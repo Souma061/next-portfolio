@@ -29,7 +29,7 @@ export const ProjectsSection: React.FC = () => {
         <div>
           <div className="flex items-center gap-3 font-mono text-xs text-[#e86b1c] tracking-widest uppercase mb-2">
             <span className="flex h-2 w-2 rounded-full bg-[#e86b1c]" />
-            <span>02 {"//"} PRODUCTION SYSTEMS</span>
+            <span>01 // FEATURED SYSTEMS</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#f3e6d5]">
             Featured Architecture Case Studies
@@ -74,7 +74,7 @@ export const ProjectsSection: React.FC = () => {
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-bold text-[#e86b1c]">
-                      SYS-0{index + 1} {"//"}
+                      SYS-0{index + 1} //
                     </span>
                     <TechBadge variant="status" size="sm">
                       {project.statusBadge}

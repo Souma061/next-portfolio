@@ -25,9 +25,10 @@ export const SiteHeader: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: "Systems", href: "/#projects" },
+    { label: "Systems", href: "/projects" },
     { label: "Hardware Receipts", href: "/#benchmarks" },
     { label: "Stack", href: "/#skills" },
+    { label: "Writing", href: "/blog" },
     { label: "Studio", href: "/write", highlight: true, icon: PenTool },
   ];
 
@@ -53,7 +54,7 @@ export const SiteHeader: React.FC = () => {
               SOUMA<span className="text-[#e86b1c]">.</span>DEV
             </span>
             <span className="hidden md:inline-block rounded-md bg-[#161e2b] px-2 py-0.5 text-[10px] text-[#7f756d] border border-[#232e40]">
-              C++20 {"//"} DISTRIBUTED
+              C++20 // DISTRIBUTED
             </span>
           </Link>
 

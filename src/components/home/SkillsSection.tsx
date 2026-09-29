@@ -16,7 +16,7 @@ export const SkillsSection: React.FC = () => {
       <div className="mb-12">
         <div className="flex items-center gap-3 font-mono text-xs text-[#e86b1c] tracking-widest uppercase mb-2">
           <span className="flex h-2 w-2 rounded-full bg-[#e86b1c]" />
-          <span>03 {"//"} KERNEL & DISTRIBUTED STACK</span>
+          <span>02 // KERNEL & DISTRIBUTED STACK</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#f3e6d5]">
           Engineering Competencies & Tooling
