@@ -41,6 +41,7 @@ export const TiptapEditor: React.FC = () => {
   const [copiedMDX, setCopiedMDX] = useState(false);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: {
