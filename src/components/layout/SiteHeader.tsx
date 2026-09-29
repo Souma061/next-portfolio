@@ -26,8 +26,7 @@ export const SiteHeader: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: "Systems", href: "/projects" },
-    { label: "Hardware Receipts", href: "/#benchmarks" },
+    { label: "Systems", href: "/#projects" },
     { label: "Stack", href: "/#skills" },
     { label: "Writing", href: "/blog" },
     { label: "Studio", href: "/write", highlight: true, icon: PenTool },
@@ -49,11 +48,12 @@ export const SiteHeader: React.FC = () => {
             className="group flex items-center gap-2.5 font-mono text-sm tracking-tight text-[#f3e6d5]"
           >
             <Image
-              src="/soumabrata.jpg"
+              src="/avatar-logo.svg"
               alt="Soumabrata Ghosh"
               width={28}
               height={28}
-              className="h-7 w-7 rounded-full object-cover ring-1 ring-[#e86b1c]/40 group-hover:scale-105 transition-transform"
+              unoptimized
+              className="h-7 w-7 rounded-full object-cover ring-1 ring-[#e86b1c]/50 group-hover:scale-105 transition-transform"
             />
             <span className="font-bold tracking-wider group-hover:text-white transition-colors">
               SOUMA<span className="text-[#e86b1c]">.</span>DEV
