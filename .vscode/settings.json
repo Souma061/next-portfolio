@@ -1,5 +1,8 @@
 {
     "files.autoSave": "afterDelay",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.wordWrap": "on"
+    "editor.wordWrap": "on",
+    "[sql]": {
+        "editor.defaultFormatter": "ms-ossdata.vscode-pgsql"
+    }
 }

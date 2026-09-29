@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { FileText, PenTool } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import { PERSONAL_INFO } from "@/data/socialLinks";
 import { cn } from "@/lib/utils";
+import { FileText } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 export const SiteHeader: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -15,7 +15,8 @@ export const SiteHeader: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const totalScroll =
+        document.documentElement.scrollHeight - window.innerHeight;
       if (totalScroll > 0) {
         setScrollProgress((window.scrollY / totalScroll) * 100);
       }
@@ -29,7 +30,6 @@ export const SiteHeader: React.FC = () => {
     { label: "Systems", href: "/#projects" },
     { label: "Stack", href: "/#skills" },
     { label: "Writing", href: "/blog" },
-    { label: "Studio", href: "/write", highlight: true, icon: PenTool },
   ];
 
   return (
@@ -66,7 +66,6 @@ export const SiteHeader: React.FC = () => {
           <nav className="hidden md:flex items-center gap-1 text-xs font-mono">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
-              const Icon = link.icon;
               return (
                 <Link
                   key={link.label}
@@ -75,12 +74,9 @@ export const SiteHeader: React.FC = () => {
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200",
                     isActive
                       ? "bg-[#e86b1c]/15 text-[#e86b1c] border border-[#e86b1c]/40"
-                      : link.highlight
-                      ? "text-[#e86b1c] hover:bg-[#e86b1c]/10"
                       : "text-[#b8aba0] hover:text-[#f3e6d5] hover:bg-[#161e2b]"
                   )}
                 >
-                  {Icon && <Icon className="h-3 w-3" />}
                   <span>{link.label}</span>
                 </Link>
               );
@@ -93,7 +89,9 @@ export const SiteHeader: React.FC = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="hidden lg:inline">{PERSONAL_INFO.statusMessage}</span>
+              <span className="hidden lg:inline">
+                {PERSONAL_INFO.statusMessage}
+              </span>
               <span className="lg:hidden">ACTIVE</span>
             </div>
 

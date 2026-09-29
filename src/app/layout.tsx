@@ -17,6 +17,14 @@ export const metadata: Metadata = {
     "PR-Quadtree"
   ],
   authors: [{ name: "Soumabrata Ghosh", url: "https://github.com/Souma061" }],
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "64x64", type: "image/png" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

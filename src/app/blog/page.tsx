@@ -1,11 +1,22 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Clock, Calendar, PenTool } from "lucide-react";
-import { getAllPosts } from "@/lib/blog";
+import { ArrowRight, Clock, Calendar, Mail } from "lucide-react";
+import { listPublishedPosts, Post } from "@/lib/posts";
+import { estimateReadingTime } from "@/lib/richtext";
+import { PERSONAL_INFO } from "@/data/socialLinks";
 import { TechBadge } from "@/components/ui/TechBadge";
 
-export default function BlogIndexPage() {
-  const posts = getAllPosts();
+export const revalidate = 60;
+
+const day = (iso: string | null) => (iso ? iso.slice(0, 10) : "");
+
+export default async function BlogIndexPage() {
+  let posts: Post[] = [];
+  try {
+    posts = await listPublishedPosts();
+  } catch {
+    posts = [];
+  }
 
   return (
     <div className="relative pt-32 pb-24">
@@ -35,12 +46,12 @@ export default function BlogIndexPage() {
               <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono text-[#7f756d] mb-3">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5 text-[#e86b1c]" />
-                  {post.date}
+                  {day(post.publishedAt)}
                 </span>
                 <span>•</span>
                 <span className="flex items-center gap-1.5 text-emerald-400">
                   <Clock className="h-3.5 w-3.5" />
-                  {post.readingTime}
+                  {estimateReadingTime(post.content)} min read
                 </span>
               </div>
 
@@ -73,13 +84,13 @@ export default function BlogIndexPage() {
           <p className="text-[11px] text-[#7f756d]">
             Have a topic you want broken down?
           </p>
-          <Link
-            href="/write"
+          <a
+            href={`mailto:${PERSONAL_INFO.email}`}
             className="inline-flex items-center gap-1.5 rounded-full bg-[#e86b1c] px-4 py-2 font-semibold text-white hover:bg-[#b84a0f] transition-all shrink-0"
           >
-            <PenTool className="h-3.5 w-3.5" />
-            <span>Open Studio</span>
-          </Link>
+            <Mail className="h-3.5 w-3.5" />
+            <span>Get in touch</span>
+          </a>
         </div>
       </div>
     </div>

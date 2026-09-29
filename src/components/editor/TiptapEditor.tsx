@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import LinkExtension from "@tiptap/extension-link";
 import {
@@ -15,148 +17,215 @@ import {
   ListOrdered,
   Code,
   Quote,
-  Download,
-  Copy,
+  Undo2,
   Check,
   FileText,
+  Rocket,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { htmlToMarkdown, markdownToHtml } from "@/lib/markdown";
+import { TiptapNode, docText, estimateReadingTime } from "@/lib/richtext";
+import { saveDraft, publishPost, unpublishPost, requestUploadTarget } from "@/app/write/actions";
 
-const INITIAL_CONTENT = `
-<h2>Architectural Thesis: Zero-Heap Spatial Quadtrees in C++20</h2>
-<p>Modern ride-hailing and spatial dispatch meshes frequently bottleneck on geographic lookups during peak demand spikes. When 100,000 drivers broadcast GPS coordinates concurrently, conventional point-in-polygon queries degrade rapidly.</p>
+const IMAGE_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+  "image/avif",
+]);
 
-<h3>1. Struct-of-Arrays (SoA) Vectorization</h3>
-<p>By restructuring coordinate memory into contiguous float arrays aligned to 64-byte cache lines, SIMD AVX-512 instructions can evaluate 16 spatial bounding boxes simultaneously with zero cache thrashing.</p>
+async function uploadImage(file: File): Promise<string> {
+  const grant = await requestUploadTarget(file.name, file.type, file.size);
+  if (grant.ok !== true) throw new Error(grant.message);
+  const { provider, method, url, publicUrl, headers, fields } = grant.target;
 
-<h3>2. Atomic Redis Lua State Machine</h3>
-<p>Distributed concurrency locks fail under tail latency jitter. Moving lease validation directly into Redis via Lua scripts yields deterministic CAS (Compare-And-Swap) execution in 14 microseconds.</p>
-`;
+  if (provider === "cloudinary") {
+    const body = new FormData();
+    for (const [k, v] of Object.entries(fields)) body.append(k, v);
+    body.append("file", file);
+    const res = await fetch(url, { method: "POST", body });
+    if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+    const json = (await res.json()) as { secure_url?: string };
+    if (!json.secure_url) throw new Error("Cloudinary returned no URL.");
+    return json.secure_url;
+  }
 
-export interface EditablePost {
-  title: string;
-  slug: string;
-  excerpt: string;
-  tags: string[];
-  content: string;
+  const res = await fetch(url, { method, headers, body: file });
+  if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+  return publicUrl;
 }
 
-const draftKey = (slug: string) => `blog-draft:${slug || "untitled"}`;
+export interface EditablePost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  tags: string[];
+  content: TiptapNode;
+  status: "draft" | "published";
+}
 
-const clock = (ts: number) =>
-  new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+type State = "idle" | "saving" | "saved" | "error";
+
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+const clock = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
 export const TiptapEditor: React.FC<{ initialPost?: EditablePost }> = ({ initialPost }) => {
-  const [title, setTitle] = useState(initialPost?.title ?? "Designing Sub-Microsecond Spatial PR-Quadtrees in C++20");
-  const [slug, setSlug] = useState(initialPost?.slug ?? "designing-sub-microsecond-spatial-quadtrees");
-  const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
-  const [tags, setTags] = useState((initialPost?.tags ?? ["C++20", "Redis Lua", "AVX-512", "Quadtree"]).join(", "));
-  const [savedStatus, setSavedStatus] = useState("SAVED LOCALLY");
-  const [savedAt, setSavedAt] = useState<number | null>(null);
-  const [restored, setRestored] = useState(false);
-  const [copiedMDX, setCopiedMDX] = useState(false);
+  const router = useRouter();
 
-  const startHtml = useMemo(
-    () => (initialPost ? markdownToHtml(initialPost.content) : INITIAL_CONTENT),
-    [initialPost]
-  );
+  const [title, setTitle] = useState(initialPost?.title ?? "");
+  const [slug, setSlug] = useState(initialPost?.slug ?? "");
+  const [slugTouched, setSlugTouched] = useState(Boolean(initialPost?.slug));
+  const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? "");
+  const [tags, setTags] = useState((initialPost?.tags ?? []).join(", "));
+  const [status, setStatus] = useState<"draft" | "published">(initialPost?.status ?? "draft");
+
+  const [state, setState] = useState<State>("idle");
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [uploads, setUploads] = useState(0);
+  const [uploadError, setUploadError] = useState("");
+
+  const insertImages = useRef<(files: File[]) => void>(() => {});
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
+      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+      Image.configure({ inline: false, allowBase64: false }),
       Placeholder.configure({
         placeholder: "Write systems architecture documentation or technical post...",
       }),
-      LinkExtension.configure({
-        openOnClick: false,
-      }),
+      LinkExtension.configure({ openOnClick: false }),
     ],
-    content: startHtml,
+    content: initialPost?.content ?? { type: "doc", content: [] },
     editorProps: {
       attributes: {
         class:
           "prose prose-invert max-w-none focus:outline-none min-h-[420px] font-sans text-sm md:text-base leading-relaxed text-[#f3e6d5]",
       },
+      handlePaste: (_view, event) => {
+        const files = Array.from(event.clipboardData?.files ?? []).filter((f) =>
+          IMAGE_TYPES.has(f.type)
+        );
+        if (!files.length) return false;
+        event.preventDefault();
+        insertImages.current(files);
+        return true;
+      },
+      handleDrop: (_view, event) => {
+        const files = Array.from(event.dataTransfer?.files ?? []).filter((f) =>
+          IMAGE_TYPES.has(f.type)
+        );
+        if (!files.length) return false;
+        event.preventDefault();
+        insertImages.current(files);
+        return true;
+      },
     },
   });
 
-  useEffect(() => {
+  insertImages.current = async (files: File[]) => {
     if (!editor) return;
-    const raw = localStorage.getItem(draftKey(slug));
-    if (!raw) return;
-    try {
-      const draft = JSON.parse(raw);
-      if (!draft?.html) return;
-      editor.commands.setContent(draft.html);
-      setTitle(draft.title ?? title);
-      setExcerpt(draft.excerpt ?? "");
-      setTags(draft.tags ?? tags);
-      setSavedAt(draft.savedAt ?? null);
-      setRestored(true);
-    } catch {
-      localStorage.removeItem(draftKey(slug));
+    setUploadError("");
+    setUploads((n) => n + files.length);
+    for (const file of files) {
+      try {
+        const url = await uploadImage(file);
+        const alt = window.prompt("Alt text for this image (describe it for screen readers):", file.name);
+        if (alt === null) continue;
+        editor.chain().focus().setImage({ src: url, alt }).run();
+      } catch (error) {
+        setUploadError(`Upload failed: ${(error as Error).message}`);
+      } finally {
+        setUploads((n) => n - 1);
+      }
     }
-  }, [editor, slug]);
+  };
+
+  const payload = useCallback(
+    () => ({
+      title,
+      slug: slug || slugify(title),
+      excerpt,
+      tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+      content: (editor?.getJSON() ?? { type: "doc", content: [] }) as TiptapNode,
+    }),
+    [title, slug, excerpt, tags, editor]
+  );
+
+  const dirty = useRef(false);
+  useEffect(() => {
+    const mark = () => {
+      dirty.current = true;
+    };
+    if (!editor) return;
+    editor.on("update", mark);
+    return () => {
+      editor.off("update", mark);
+    };
+  }, [editor]);
 
   useEffect(() => {
-    if (!editor) return;
-    setSavedStatus("SAVING...");
-    const timer = setTimeout(() => {
-      const now = Date.now();
-      localStorage.setItem(
-        draftKey(slug),
-        JSON.stringify({ title, slug, excerpt, tags, html: editor.getHTML(), savedAt: now })
-      );
-      setSavedAt(now);
-      setSavedStatus("SAVED LOCALLY");
-    }, 400);
+    if (!editor || !dirty.current || !title.trim()) return;
+
+    setState("saving");
+    const timer = setTimeout(async () => {
+      const result = await saveDraft(payload());
+      if (result.ok) {
+        setSavedAt(result.savedAt);
+        setState("saved");
+        if (result.slug && result.slug !== slug) {
+          setSlug(result.slug);
+          setSlugTouched(true);
+          router.replace(`/write?slug=${result.slug}`, { scroll: false });
+        }
+      } else {
+        setState("error");
+        setMessage(result.message);
+      }
+    }, 1500);
+
     return () => clearTimeout(timer);
-  }, [editor, title, slug, excerpt, tags]);
+  }, [title, slug, excerpt, tags, editor, payload, router]);
 
-  const wordCount = editor?.getText().split(/\s+/).filter(Boolean).length || 0;
-  const readingTime = Math.ceil(wordCount / 200) || 1;
-
-  const buildMarkdown = () => {
-    if (!editor) return "";
-    const tagList = tags.split(",").map((t) => `"${t.trim()}"`).filter((t) => t !== '""').join(", ");
-    return [
-      "---",
-      `title: "${title}"`,
-      `slug: "${slug}"`,
-      `date: "${new Date().toISOString().split("T")[0]}"`,
-      `tags: [${tagList}]`,
-      `readingTime: "${readingTime} min read"`,
-      `author: "Soumabrata Ghosh"`,
-      "---",
-      "",
-      htmlToMarkdown(editor.getHTML()).trim(),
-      "",
-    ].join("\n");
+  const handlePublish = async () => {
+    setBusy(true);
+    setMessage("");
+    const result = await publishPost(payload());
+    setBusy(false);
+    setMessage(result.message);
+    if (result.ok) {
+      setStatus("published");
+      setSavedAt(result.savedAt);
+      setState("saved");
+      if (result.slug && result.slug !== slug) {
+        setSlug(result.slug);
+        router.replace(`/write?slug=${result.slug}`, { scroll: false });
+      }
+      router.refresh();
+    } else {
+      setState("error");
+    }
   };
 
-  const handleExportMarkdown = () => {
-    if (!editor) return;
-    const blob = new Blob([buildMarkdown()], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${slug || "post"}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleUnpublish = async () => {
+    setBusy(true);
+    const result = await unpublishPost(slug);
+    setBusy(false);
+    setMessage(result.message);
+    if (result.ok) {
+      setStatus("draft");
+      router.refresh();
+    }
   };
 
-  const handleCopyMDX = () => {
-    if (!editor) return;
-    navigator.clipboard.writeText(buildMarkdown());
-    setCopiedMDX(true);
-    setTimeout(() => setCopiedMDX(false), 2500);
-  };
+  const words = editor ? docText(editor.getJSON() as TiptapNode).trim().split(/\s+/).filter(Boolean).length : 0;
+  const readingTime = estimateReadingTime((editor?.getJSON() ?? { type: "doc" }) as TiptapNode);
 
   if (!editor) {
     return (
@@ -175,38 +244,83 @@ export const TiptapEditor: React.FC<{ initialPost?: EditablePost }> = ({ initial
           </div>
           <div>
             <span className="font-bold text-[#f3e6d5]">TIPTAP STUDIO // </span>
-            <span className="text-[#e86b1c] font-semibold">{savedStatus}</span>
-            {savedAt ? <span className="text-[#7f756d] ml-1.5">{clock(savedAt)}</span> : null}
-            {restored ? (
-              <span className="ml-2 rounded border border-[#283548] px-1.5 py-0.5 text-[9px] text-[#b8aba0]">
-                DRAFT RESTORED
-              </span>
-            ) : null}
+            <span
+              className={cn(
+                "font-semibold",
+                state === "error" ? "text-red-400" : "text-[#e86b1c]"
+              )}
+            >
+              {state === "saving"
+                ? "SAVING..."
+                : state === "error"
+                  ? "SAVE FAILED"
+                  : state === "saved"
+                    ? `SAVED ${clock(savedAt)}`
+                    : "READY"}
+            </span>
+            <span
+              className={cn(
+                "ml-2 rounded border px-1.5 py-0.5 text-[9px]",
+                status === "published"
+                  ? "border-emerald-500/40 text-emerald-400"
+                  : "border-[#283548] text-[#b8aba0]"
+              )}
+            >
+              {status.toUpperCase()}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-[#7f756d] hidden sm:inline">
-            {wordCount} words • ~{readingTime} min read
+            {words} words • ~{readingTime} min read
           </span>
-
+          {status === "published" ? (
+            <button
+              onClick={handleUnpublish}
+              disabled={busy}
+              className="flex items-center gap-1.5 rounded-lg bg-[#18212e] px-3 py-1.5 text-[#f3e6d5] border border-[#232e40] hover:border-amber-400 transition-colors disabled:opacity-50"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              <span>Unpublish</span>
+            </button>
+          ) : null}
           <button
-            onClick={handleCopyMDX}
-            className="flex items-center gap-1.5 rounded-lg bg-[#18212e] px-3 py-1.5 text-[#f3e6d5] border border-[#232e40] hover:border-[#e86b1c] transition-colors"
+            onClick={handlePublish}
+            disabled={busy}
+            className="flex items-center gap-1.5 rounded-lg bg-[#e86b1c] px-3 py-1.5 font-semibold text-white hover:bg-[#b84a0f] transition-colors shadow-sm shadow-[#e86b1c]/25 disabled:opacity-50"
           >
-            {copiedMDX ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-            <span>{copiedMDX ? "Copied" : "Copy MDX"}</span>
-          </button>
-
-          <button
-            onClick={handleExportMarkdown}
-            className="flex items-center gap-1.5 rounded-lg bg-[#e86b1c] px-3 py-1.5 font-semibold text-white hover:bg-[#b84a0f] transition-colors shadow-sm shadow-[#e86b1c]/25"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span>Export .md</span>
+            <Rocket className="h-3.5 w-3.5" />
+            <span>{busy ? "WORKING..." : "Publish"}</span>
           </button>
         </div>
       </div>
+
+      {uploads > 0 ? (
+        <p role="status" className="rounded-xl border border-[#e86b1c]/40 bg-[#e86b1c]/10 px-4 py-2.5 font-mono text-xs text-[#e86b1c]">
+          UPLOADING {uploads} IMAGE{uploads > 1 ? "S" : ""}...
+        </p>
+      ) : null}
+
+      {uploadError ? (
+        <p role="alert" className="rounded-xl border border-red-500/40 bg-red-950/30 px-4 py-2.5 font-mono text-xs text-red-300">
+          {uploadError}
+        </p>
+      ) : null}
+
+      {message ? (
+        <p
+          role="status"
+          className={cn(
+            "rounded-xl border px-4 py-2.5 font-mono text-xs",
+            state === "error"
+              ? "border-red-500/40 bg-red-950/30 text-red-300"
+              : "border-emerald-500/30 bg-emerald-950/25 text-emerald-300"
+          )}
+        >
+          {message}
+        </p>
+      ) : null}
 
       <div className="rounded-2xl bg-[#121822] border border-[#232e40] p-6 space-y-4">
         <div>
@@ -218,7 +332,7 @@ export const TiptapEditor: React.FC<{ initialPost?: EditablePost }> = ({ initial
             value={title}
             onChange={(e) => {
               setTitle(e.target.value);
-              setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
+              if (!slugTouched) setSlug(slugify(e.target.value));
             }}
             placeholder="Article Title..."
             className="w-full rounded-xl bg-[#0e141d] border border-[#232e40] px-4 py-2.5 text-lg font-bold text-[#f3e6d5] focus:border-[#e86b1c] focus:outline-none"
@@ -246,7 +360,10 @@ export const TiptapEditor: React.FC<{ initialPost?: EditablePost }> = ({ initial
             <input
               type="text"
               value={slug}
-              onChange={(e) => setSlug(e.target.value)}
+              onChange={(e) => {
+                setSlugTouched(true);
+                setSlug(slugify(e.target.value));
+              }}
               className="w-full rounded-lg bg-[#0e141d] border border-[#232e40] px-3 py-2 text-[#b8aba0] focus:border-[#e86b1c] focus:outline-none"
             />
           </div>
@@ -266,125 +383,54 @@ export const TiptapEditor: React.FC<{ initialPost?: EditablePost }> = ({ initial
       </div>
 
       <div className="sticky top-20 z-20 flex flex-wrap items-center gap-1 rounded-xl bg-[#141b26]/95 border border-[#232e40] p-2 backdrop-blur-md">
+        {(
+          [
+            { label: "Bold", Icon: Bold, run: () => editor.chain().focus().toggleBold().run(), active: editor.isActive("bold") },
+            { label: "Italic", Icon: Italic, run: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive("italic") },
+            { label: "Heading 1", Icon: Heading1, run: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), active: editor.isActive("heading", { level: 1 }) },
+            { label: "Heading 2", Icon: Heading2, run: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive("heading", { level: 2 }) },
+            { label: "Heading 3", Icon: Heading3, run: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive("heading", { level: 3 }) },
+            { label: "Bullet List", Icon: List, run: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive("bulletList") },
+            { label: "Numbered List", Icon: ListOrdered, run: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive("orderedList") },
+            { label: "Code Block", Icon: Code, run: () => editor.chain().focus().toggleCodeBlock().run(), active: editor.isActive("codeBlock") },
+            { label: "Blockquote", Icon: Quote, run: () => editor.chain().focus().toggleBlockquote().run(), active: editor.isActive("blockquote") },
+          ] as const
+        ).map(({ label, Icon, run, active }, i) => (
+          <React.Fragment key={label}>
+            {(i === 2 || i === 5 || i === 8) && <div className="h-5 w-px bg-[#283548] mx-1" />}
+            <button
+              onClick={run}
+              className={cn(
+                "p-2 rounded-lg text-xs font-mono transition-colors",
+                active
+                  ? "bg-[#e86b1c] text-white"
+                  : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
+              )}
+              title={label}
+              aria-label={label}
+            >
+              <Icon className="h-4 w-4" />
+            </button>
+          </React.Fragment>
+        ))}
+        <div className="h-5 w-px bg-[#283548] mx-1" />
         <button
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("bold")
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Bold"
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={!editor.can().undo()}
+          className="p-2 rounded-lg text-xs font-mono text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5] disabled:opacity-30 transition-colors"
+          title="Undo"
+          aria-label="Undo"
         >
-          <Bold className="h-4 w-4" />
+          <Undo2 className="h-4 w-4" />
         </button>
-
         <button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("italic")
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Italic"
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={!editor.can().redo()}
+          className="p-2 rounded-lg text-xs font-mono text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5] disabled:opacity-30 transition-colors"
+          title="Redo"
+          aria-label="Redo"
         >
-          <Italic className="h-4 w-4" />
-        </button>
-
-        <div className="h-5 w-[1px] bg-[#283548] mx-1" />
-
-        <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("heading", { level: 1 })
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Heading 1"
-        >
-          <Heading1 className="h-4 w-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("heading", { level: 2 })
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Heading 2"
-        >
-          <Heading2 className="h-4 w-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("heading", { level: 3 })
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Heading 3"
-        >
-          <Heading3 className="h-4 w-4" />
-        </button>
-
-        <div className="h-5 w-[1px] bg-[#283548] mx-1" />
-
-        <button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("bulletList")
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Bullet List"
-        >
-          <List className="h-4 w-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("orderedList")
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Numbered List"
-        >
-          <ListOrdered className="h-4 w-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("codeBlock")
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Code Block"
-        >
-          <Code className="h-4 w-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={cn(
-            "p-2 rounded-lg text-xs font-mono transition-colors",
-            editor.isActive("blockquote")
-              ? "bg-[#e86b1c] text-white"
-              : "text-[#b8aba0] hover:bg-[#1f2838] hover:text-[#f3e6d5]"
-          )}
-          title="Blockquote"
-        >
-          <Quote className="h-4 w-4" />
+          <Check className="h-4 w-4 rotate-90" />
         </button>
       </div>
 

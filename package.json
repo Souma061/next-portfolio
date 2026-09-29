@@ -8,9 +8,16 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "check:markdown": "node --experimental-strip-types scripts/check-markdown.ts"
+    "check:markdown": "node --experimental-strip-types scripts/check-markdown.ts",
+    "check:richtext": "node --experimental-strip-types scripts/check-richtext.ts",
+    "check:post-input": "node --experimental-strip-types scripts/check-post-input.ts",
+    "check:session": "node --experimental-strip-types scripts/check-session.ts",
+    "check": "pnpm check:markdown && pnpm check:richtext && pnpm check:post-input && pnpm check:session",
+    "seed": "node --experimental-strip-types scripts/seed-supabase.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "@tiptap/extension-image": "^2.27.3",
     "@tiptap/extension-link": "^2.27.3",
     "@tiptap/extension-placeholder": "^2.27.3",
     "@tiptap/react": "^2.27.3",
@@ -20,6 +27,7 @@
     "next": "15.5.26",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
