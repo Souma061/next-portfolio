@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Terminal, FileText, PenTool, ExternalLink, Cpu } from "lucide-react";
+import { FileText, PenTool } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import { PERSONAL_INFO } from "@/data/socialLinks";
 import { cn } from "@/lib/utils";
@@ -47,9 +48,13 @@ export const SiteHeader: React.FC = () => {
             href="/"
             className="group flex items-center gap-2.5 font-mono text-sm tracking-tight text-[#f3e6d5]"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#e86b1c]/15 border border-[#e86b1c]/40 text-[#e86b1c] group-hover:scale-105 transition-transform">
-              <Cpu className="h-4 w-4" />
-            </div>
+            <Image
+              src="/soumabrata.jpg"
+              alt="Soumabrata Ghosh"
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-full object-cover ring-1 ring-[#e86b1c]/40 group-hover:scale-105 transition-transform"
+            />
             <span className="font-bold tracking-wider group-hover:text-white transition-colors">
               SOUMA<span className="text-[#e86b1c]">.</span>DEV
             </span>
