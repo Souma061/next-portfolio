@@ -24,11 +24,11 @@ export default function HomePage() {
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#1e2838] border border-[#232e40] px-3.5 py-1 text-xs font-mono text-[#e86b1c]">
               <Cpu className="h-3.5 w-3.5" />
-              <span>SYSTEMS ARCHITECT // OPEN FOR ENGAGEMENT</span>
+              <span>SYSTEMS ARCHITECT {"//"} OPEN FOR ENGAGEMENT</span>
             </div>
 
             <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[#f3e6d5]">
-              Let's engineer infrastructure that does not fail under load.
+              Let&apos;s engineer infrastructure that does not fail under load.
             </h2>
 
             <p className="text-sm md:text-base text-[#b8aba0] leading-relaxed">

@@ -12,7 +12,7 @@ export const HeroSection: React.FC = () => {
         <div className="inline-flex items-center gap-2 rounded-full bg-[#121822] border border-[#232e40] px-4 py-1.5 text-xs font-mono text-[#b8aba0] mb-8 shadow-inner hover:border-[#e86b1c]/50 transition-colors">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-[#f3e6d5] font-semibold">{PERSONAL_INFO.name}</span>
-          <span className="text-[#7f756d]">///</span>
+          <span className="text-[#7f756d]">{"///"}</span>
           <span className="text-[#e86b1c] font-medium">{PERSONAL_INFO.title}</span>
         </div>
 

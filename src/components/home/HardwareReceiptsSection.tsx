@@ -13,7 +13,7 @@ export const HardwareReceiptsSection: React.FC = () => {
       <div className="mb-12">
         <div className="flex items-center gap-3 font-mono text-xs text-[#e86b1c] tracking-widest uppercase mb-2">
           <span className="flex h-2 w-2 rounded-full bg-[#e86b1c]" />
-          <span>01 // BENCHMARK RECEIPTS</span>
+          <span>01 {"//"} BENCHMARK RECEIPTS</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#f3e6d5]">
           Verified Throughput & Tail Latency
@@ -31,7 +31,7 @@ export const HardwareReceiptsSection: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <span className="font-mono text-xs font-bold text-[#7f756d]">
-                // {receipt.number}
+                {"//"} {receipt.number}
               </span>
               <TechBadge
                 variant={receipt.badgeType === "optimal" ? "amber" : "status"}

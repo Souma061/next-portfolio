@@ -30,7 +30,7 @@ export const HeroLogoMarquee: React.FC = () => {
             >
               <Icon className="h-3.5 w-3.5 text-[#e86b1c]" />
               <span className="whitespace-nowrap font-medium">{item.text}</span>
-              <span className="text-[#232e40] select-none pl-4">///</span>
+              <span className="text-[#232e40] select-none pl-4">{"///"}</span>
             </div>
           );
         })}
