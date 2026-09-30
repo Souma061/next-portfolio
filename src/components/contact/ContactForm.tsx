@@ -24,11 +24,14 @@ const field =
   "w-full rounded-xl bg-[#0e141d] border border-[#232e40] px-4 py-3 text-sm text-[#f3e6d5] placeholder:text-[#7f756d] focus:border-[#e86b1c] focus:outline-none transition-colors";
 
 export const ContactForm: React.FC = () => {
-  const [state, action] = useActionState<ContactResult, FormData>(submitContact, {
-    ok: false,
-    errors: {},
-    message: "",
-  });
+  const [state, action] = useActionState<ContactResult, FormData>(
+    submitContact,
+    {
+      ok: false,
+      errors: {},
+      message: "",
+    },
+  );
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
@@ -41,9 +44,18 @@ export const ContactForm: React.FC = () => {
       className="space-y-4 text-left"
     >
       {/* Honeypot. Hidden from humans, irresistible to bots. */}
-      <div className="absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden="true">
+      <div
+        className="absolute h-0 w-0 overflow-hidden opacity-0"
+        aria-hidden="true"
+      >
         <label htmlFor="company">Company</label>
-        <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+        <input
+          id="company"
+          name="company"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
