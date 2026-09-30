@@ -1,10 +1,10 @@
 "use client";
 
+import { submitContact } from "@/app/contact/actions";
+import { ContactResult } from "@/lib/contact";
+import { Mail, Send } from "lucide-react";
 import React, { useActionState, useRef } from "react";
 import { useFormStatus } from "react-dom";
-import { Mail, Send } from "lucide-react";
-import { ContactResult } from "@/lib/contact";
-import { submitContact } from "@/app/contact/actions";
 
 function SendButton() {
   const { pending } = useFormStatus();
