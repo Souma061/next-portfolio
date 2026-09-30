@@ -13,7 +13,7 @@
 
 ## WORK EXPERIENCE
 
-### ShapeNext — Full-Stack Software Engineer Intern
+### ShapeNXT.com — Full-Stack Software Engineer Intern
 *Jul 2026 – Present | Remote*
 - Engineered and shipped production features across company web platform, LMS ([learn.shapenxt.com](https://learn.shapenxt.com)), and internal CRM using Next.js, TypeScript, and PostgreSQL.
 - Rebuilt company marketing infrastructure from scratch, owning full-stack implementation, performance tuning, and automated deployment pipelines.

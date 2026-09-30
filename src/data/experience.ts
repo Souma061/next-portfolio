@@ -25,7 +25,7 @@ export interface ExperienceRole {
 
 export const EXPERIENCE: ExperienceRole[] = [
   {
-    company: "ShapeNext",
+    company: "ShapeNXT.com",
     companyUrl: "https://shapenxt.com",
     role: "Full-Stack Software Engineer Intern",
     employmentType: "Internship",
