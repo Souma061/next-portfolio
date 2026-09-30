@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Soumabrata Ghosh // Systems & Distributed Infrastructure",
@@ -38,6 +39,7 @@ export default function RootLayout({
         <SiteHeader />
         <main className="relative flex-1">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
