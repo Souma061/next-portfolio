@@ -1,0 +1,170 @@
+%-------------------------
+% Resume in Latex
+% Author : Soumabrata Ghosh
+% Target : Distributed Systems & Infrastructure Engineer
+% License : MIT
+%-------------------------
+
+\documentclass[letterpaper,10pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-5pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%----------HEADING----------
+\begin{center}
+    \textbf{\Huge \scshape Soumabrata Ghosh} \\ \vspace{2pt}
+    \small Kolkata, India $|$ 
+    \href{mailto:soumabrataghosh57@gmail.com}{\underline{soumabrataghosh57@gmail.com}} $|$ 
+    \href{https://github.com/Souma061}{\underline{github.com/Souma061}} $|$ 
+    \href{https://linkedin.com/in/soumabrata-ghosh}{\underline{linkedin.com/in/soumabrata-ghosh}} $|$ 
+    \href{https://souma.dev}{\underline{souma.dev}}
+\end{center}
+
+%-----------TECHNICAL SKILLS-----------
+\section{Technical Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages}{: C++20, C, TypeScript/JavaScript, Python, SQL, POSIX Shell/Bash} \\
+     \textbf{Distributed Systems}{: Redis Lua atomic leases, Apache Kafka (partitioning, consumer groups, exactly-once), Distributed Locks (Redlock), WebSockets, Circuit Breakers, Dead-Letter Queues} \\
+     \textbf{Databases \& Storage}{: SQLite FTS5 / BM25, Turso libSQL, PostgreSQL (MVCC, Index Optimization), MongoDB, Redis Streams \& Pub/Sub} \\
+     \textbf{Infrastructure \& Tooling}{: Docker containerization, Linux eBPF/perf, Locust Load Testing, Git, Next.js, CI/CD pipelines}
+    }}
+ \end{itemize}
+
+%-----------WORK EXPERIENCE-----------
+\section{Work Experience}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {ShapeNext}{Remote}
+      {Full-Stack Software Engineer Intern}{Jul 2026 -- Present}
+      \resumeItemListStart
+        \resumeItem{Engineered and shipped production features across company web platform, LMS (\href{https://learn.shapenxt.com}{\underline{learn.shapenxt.com}}), and internal CRM using Next.js, TypeScript, and PostgreSQL.}
+        \resumeItem{Rebuilt company marketing infrastructure from scratch, owning full-stack implementation, performance tuning, and automated deployment pipelines.}
+        \resumeItem{Architected in-platform blog content authoring and publishing system for the LMS, enabling autonomous course marketing without engineering dependencies.}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%-----------FEATURED PROJECTS-----------
+\section{Featured Engineering Projects}
+    \resumeSubHeadingListStart
+
+      \resumeProjectHeading
+          {\textbf{InstaRide} $|$ \emph{C++20, Redis Lua, PR-Quadtree, SIMD AVX-512, Docker, WebSockets}}{2026}
+          \resumeItemListStart
+            \resumeItem{Engineered a sub-millisecond spatial dispatch kernel in \textbf{C++20}, achieving \textbf{3.88M ops/sec} spatial ingestion and \textbf{16.5 $\mu$s} p99 k-NN query latency (75x faster than PostGIS baselines).}
+            \resumeItem{Designed a Point-Region Quadtree with Struct-of-Arrays (SoA) layout and vectorized \textbf{AVX-512} bounding box pruning to evaluate 16 coordinates per clock cycle with zero heap allocations.}
+            \resumeItem{Eliminated distributed double-booking anomalies with single-roundtrip atomic \textbf{Redis Lua} scripts processing \textbf{71.9k lock acquisitions/sec} with zero data collisions.}
+            \resumeItem{Hardened engine against singularity spatial clustering (50k drivers on 1 coordinate) via depth-clamped bucket overflow; verified 0 segfaults under ASan/Valgrind.}
+          \resumeItemListEnd
+
+      \resumeProjectHeading
+          {\textbf{Distributed Search Engine} $|$ \emph{TypeScript, SQLite FTS5, Turso libSQL, BM25 Ranking}}{2026}
+          \resumeItemListStart
+            \resumeItem{Built an inverted index search core supporting full-text retrieval across 100k+ documents with sub-\textbf{5ms} search response time and tokenized trigram query routing.}
+            \resumeItem{Implemented custom \textbf{BM25} relevance scoring with dynamic term frequency saturation and document length normalization for high-precision retrieval.}
+            \resumeItem{Constructed edge database replica sync using Turso libSQL, reducing p95 query latency by \textbf{65\%} for distributed multi-region clients.}
+          \resumeItemListEnd
+
+      \resumeProjectHeading
+          {\textbf{High-Throughput Webhook Relay Fabric} $|$ \emph{Apache Kafka, Redis, Circuit Breakers, Node.js}}{2026}
+          \resumeItemListStart
+            \resumeItem{Architected a distributed event ingestion fabric sustaining \textbf{120,000 req/sec} ingress with at-least-once delivery guarantees.}
+            \resumeItem{Engineered partitioned \textbf{Apache Kafka} topic pipelines with automated exponential backoff retries and Dead-Letter Queues (DLQ) to isolate failing subscriber endpoints.}
+            \resumeItem{Integrated distributed token-bucket rate limiters in \textbf{Redis} with sliding-window accounting to defend downstream webhooks from traffic storms.}
+          \resumeItemListEnd
+
+      \resumeProjectHeading
+          {\textbf{Atomic Event Ticket Reservation Engine} $|$ \emph{PostgreSQL, Redis, Distributed Locking, Node.js}}{2026}
+          \resumeItemListStart
+            \resumeItem{Designed a high-concurrency seat reservation system sustaining \textbf{1,000+ RPS} concurrent burst traffic under Locust stress testing with \textbf{0.000\%} over-allocation.}
+            \resumeItem{Combined Redis temporary reservation TTL leases with PostgreSQL MVCC and optimistic row locking to guarantee strict transactional consistency.}
+          \resumeItemListEnd
+
+    \resumeSubHeadingListEnd
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {University / College Name}{Kolkata, India}
+      {Bachelor of Technology in Computer Science and Engineering}{Graduation: 2026}
+      \resumeItemListStart
+        \resumeItem{\textbf{Relevant Coursework:} Operating Systems, Distributed Systems, Computer Networks, Database Management Systems, Data Structures \& Algorithms, Object-Oriented System Design.}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%-----------CERTIFICATIONS & ACHIEVEMENTS-----------
+\section{Achievements \& Core Competencies}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Production Reliability}{: Authored 48,000+ lines of production code across 5 distributed architectures with zero memory safety violations.} \\
+     \textbf{Chaos Testing Mastery}{: Engineered custom load injection harness simulating network splits, split-brain nodes, and packet drops under continuous Locust profiling.}
+    }}
+ \end{itemize}
+
+\end{document}

@@ -14,7 +14,7 @@ export const PERSONAL_INFO = {
   status: "ONLINE",
   statusMessage: "OPEN FOR SYSTEMS ROLES",
   location: "Kolkata, IN // UTC+05:30",
-  email: "soumabrataghosh061@gmail.com",
+  email: "soumabrataghosh57@gmail.com",
   npxCommand: "npx soumabrata",
   github: "https://github.com/Souma061",
   linkedin: "https://linkedin.com/in/soumabrata-ghosh",
@@ -44,7 +44,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     label: "Email",
-    url: "mailto:soumabrataghosh061@gmail.com",
+    url: "mailto:soumabrataghosh57@gmail.com",
     icon: "mail",
     badge: "Direct PGP",
     isExternal: true

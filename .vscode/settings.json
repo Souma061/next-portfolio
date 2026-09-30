@@ -4,5 +4,6 @@
     "editor.wordWrap": "on",
     "[sql]": {
         "editor.defaultFormatter": "ms-ossdata.vscode-pgsql"
-    }
+    },
+    "antigravity.enableInlineDiff": false
 }

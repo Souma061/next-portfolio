@@ -7,7 +7,7 @@ import { PROJECTS } from "@/data/projects";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="relative mt-28 border-t border-[#232e40] bg-[#0b0f15]/95 text-[#b8aba0] font-mono text-xs">
+    <footer className="relative mt-28 border-t border-[#232e40] bg-[#0b0f15]/95 text-[#b8aba0] font-mono text-xs print:hidden">
       <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#e86b1c]/80 to-transparent" />
 
       <div className="mx-auto max-w-6xl px-6 py-16">

@@ -11,8 +11,9 @@
     "check:markdown": "node --experimental-strip-types scripts/check-markdown.ts",
     "check:richtext": "node --experimental-strip-types scripts/check-richtext.ts",
     "check:post-input": "node --experimental-strip-types scripts/check-post-input.ts",
+    "check:contact": "node --experimental-strip-types scripts/check-contact.ts",
     "check:session": "node --experimental-strip-types scripts/check-session.ts",
-    "check": "pnpm check:markdown && pnpm check:richtext && pnpm check:post-input && pnpm check:session",
+    "check": "pnpm check:markdown && pnpm check:richtext && pnpm check:post-input && pnpm check:contact && pnpm check:session",
     "seed": "node --experimental-strip-types scripts/seed-supabase.ts"
   },
   "dependencies": {

@@ -27,6 +27,7 @@ export const SiteHeader: React.FC = () => {
   }, []);
 
   const navLinks = [
+    { label: "Experience", href: "/#experience" },
     { label: "Systems", href: "/#projects" },
     { label: "Stack", href: "/#skills" },
     { label: "Writing", href: "/blog" },
@@ -34,14 +35,14 @@ export const SiteHeader: React.FC = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50 h-[3px] bg-transparent">
+      <div className="fixed top-0 left-0 right-0 z-50 h-[3px] bg-transparent print:hidden">
         <div
           className="h-full bg-gradient-to-r from-[#b84a0f] via-[#e86b1c] to-amber-300 shadow-[0_0_12px_#e86b1c] transition-all duration-75"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
-      <header className="fixed top-5 left-0 right-0 z-40 mx-auto w-[92%] max-w-5xl">
+      <header className="fixed top-5 left-0 right-0 z-40 mx-auto w-[92%] max-w-5xl print:hidden">
         <div className="flex items-center justify-between rounded-full bg-[#10151f]/85 px-4 py-2.5 backdrop-blur-xl border border-[#232e40] shadow-2xl shadow-black/60 transition-all duration-300 hover:border-[#e86b1c]/40">
           <Link
             href="/"
