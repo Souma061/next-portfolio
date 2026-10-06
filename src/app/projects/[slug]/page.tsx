@@ -13,20 +13,30 @@ interface ProjectPageProps {
 }
 
 export async function generateStaticParams() {
-  return PROJECTS.map((p) => ({
-    slug: p.slug,
-  }));
+  const slugs = new Set<string>();
+  for (const p of PROJECTS) {
+    slugs.add(p.slug);
+    if (p.slug.includes("-")) {
+      slugs.add(p.slug.replace(/-/g, "_"));
+    }
+  }
+  return Array.from(slugs).map((slug) => ({ slug }));
 }
 
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = PROJECTS.find((p) => p.slug === slug);
+  const normalizedSlug = slug.replace(/_/g, "-");
+  const project = PROJECTS.find(
+    (p) => p.slug === slug || p.slug === normalizedSlug || p.id === slug || p.id === normalizedSlug
+  );
 
   if (!project) {
     notFound();
   }
 
-  const currentIndex = PROJECTS.findIndex((p) => p.slug === slug);
+  const currentIndex = PROJECTS.findIndex(
+    (p) => p.slug === project.slug || p.id === project.id
+  );
   const prevProject = currentIndex > 0 ? PROJECTS[currentIndex - 1] : null;
   const nextProject = currentIndex < PROJECTS.length - 1 ? PROJECTS[currentIndex + 1] : null;
 
@@ -98,28 +108,42 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           </div>
         </div>
 
-        {project.id === "instaride" && (
+        {((project.heroMetrics && project.heroMetrics.length > 0) || project.id === "instaride") && (
           <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-2xl bg-[#121822] border border-[#232e40] p-5">
-            <div>
-              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Ingestion Throughput</div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-white">3.88M <span className="text-xs text-[#e86b1c]">ops/s</span></div>
-              <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">In-memory C++ pointer deref</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Median k-NN Latency</div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-white">16.5 <span className="text-xs text-[#e86b1c]">µs</span></div>
-              <div className="text-[10px] font-mono text-emerald-400 mt-0.5">31.4 µs p99 @ 1M fleet</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Atomic Locks</div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-white">71.9k <span className="text-xs text-[#e86b1c]">locks/s</span></div>
-              <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">Redis Lua 15s TTL lease</div>
-            </div>
-            <div>
-              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Double-Dispatch Rate</div>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400">0.000%</div>
-              <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">Zero race under 2k storm</div>
-            </div>
+            {project.heroMetrics && project.heroMetrics.length > 0 ? (
+              project.heroMetrics.map((hm, idx) => (
+                <div key={idx}>
+                  <div className="text-[10px] font-mono text-[#7f756d] uppercase">{hm.label}</div>
+                  <div className={`text-xl sm:text-2xl font-bold font-mono ${hm.highlight ? "text-emerald-400" : "text-white"}`}>
+                    {hm.value} {hm.unit && <span className="text-xs text-[#e86b1c]">{hm.unit}</span>}
+                  </div>
+                  <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">{hm.subtext}</div>
+                </div>
+              ))
+            ) : (
+              <>
+                <div>
+                  <div className="text-[10px] font-mono text-[#7f756d] uppercase">Ingestion Throughput</div>
+                  <div className="text-xl sm:text-2xl font-bold font-mono text-white">3.88M <span className="text-xs text-[#e86b1c]">ops/s</span></div>
+                  <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">In-memory C++ pointer deref</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono text-[#7f756d] uppercase">Median k-NN Latency</div>
+                  <div className="text-xl sm:text-2xl font-bold font-mono text-white">16.5 <span className="text-xs text-[#e86b1c]">µs</span></div>
+                  <div className="text-[10px] font-mono text-emerald-400 mt-0.5">31.4 µs p99 @ 1M fleet</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono text-[#7f756d] uppercase">Atomic Locks</div>
+                  <div className="text-xl sm:text-2xl font-bold font-mono text-white">71.9k <span className="text-xs text-[#e86b1c]">locks/s</span></div>
+                  <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">Redis Lua 15s TTL lease</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono text-[#7f756d] uppercase">Double-Dispatch Rate</div>
+                  <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400">0.000%</div>
+                  <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">Zero race under 2k storm</div>
+                </div>
+              </>
+            )}
           </div>
         )}
 

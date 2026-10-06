@@ -4,6 +4,8 @@ export const GithubIcon: React.FC<{ className?: string }> = ({ className = "h-4 
   <svg
     role="img"
     viewBox="0 0 24 24"
+    width="16"
+    height="16"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
@@ -20,6 +22,8 @@ export const LinkedinIcon: React.FC<{ className?: string }> = ({ className = "h-
   <svg
     role="img"
     viewBox="0 0 24 24"
+    width="16"
+    height="16"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"

@@ -22,11 +22,20 @@ export interface ChaosTestScenario {
   status: 'SURVIVED' | 'PASSED' | 'ZERO_FAILURES';
 }
 
+export interface HeroMetric {
+  label: string;
+  value: string;
+  unit?: string;
+  subtext: string;
+  highlight?: boolean;
+}
+
 export interface Project {
   id: string;
   slug: string;
   title: string;
   tagline: string;
+  heroMetrics?: HeroMetric[];
   role: string;
   category: 'distributed' | 'search' | 'realtime' | 'infra';
   statusBadge: string;
