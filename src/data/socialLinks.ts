@@ -10,12 +10,13 @@ export const PERSONAL_INFO = {
   name: "Soumabrata Ghosh",
   handle: "Souma061",
   title: "Systems & Distributed Infrastructure Engineer",
-  tagline: "High-throughput kernels, lock-free concurrency, spatial indices, and distributed message fabrics.",
+  tagline:
+    "High-throughput kernels, lock-free concurrency, spatial indices, and distributed message fabrics.",
   status: "ONLINE",
   statusMessage: "OPEN FOR SYSTEMS ROLES",
   location: "Kolkata, IN // UTC+05:30",
   email: "soumabrataghosh57@gmail.com",
-  npxCommand: "npx soumabrata",
+  npxCommand: "npx soumabrata-dev@latest",
   github: "https://github.com/Souma061",
   linkedin: "https://linkedin.com/in/soumabrata-ghosh",
   resumePath: "/resume.pdf",
@@ -24,8 +25,8 @@ export const PERSONAL_INFO = {
     p99Latency: "16.5 µs",
     raceConditions: "0.000%",
     projectsShipped: 5,
-    chaosPassRate: "100%"
-  }
+    chaosPassRate: "100%",
+  },
 };
 
 export const SOCIAL_LINKS: SocialLink[] = [

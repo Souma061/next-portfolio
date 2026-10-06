@@ -15,7 +15,7 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
     code: "01_SYS",
     skills: [
       { name: "C++20", level: "core", highlight: true, note: "Memory models, SIMD, RAII" },
-      { name: "SIMD / AVX-512", level: "core", highlight: true, note: "Vectorized search & SoA layout" },
+      
       { name: "Linux Epoll / Sockets", level: "core", note: "Non-blocking event-driven I/O" },
       { name: "PR-Quadtree & Spatial Indexing", level: "core", highlight: true, note: "O(log N) geometric partitioning" },
       { name: "Multi-threading & Mutex Primitives", level: "advanced", note: "Atomics, lock-free queues" },
