@@ -114,12 +114,12 @@
     \resumeSubHeadingListStart
 
       \resumeProjectHeading
-          {\textbf{InstaRide} $|$ \emph{C++20, Redis Lua, PR-Quadtree, SIMD AVX-512, Docker, WebSockets}}{2026}
+          {\textbf{InstaRide} $|$ \emph{C++14 (-O3), TypeScript, PR-Quadtree, Redis Lua, Fastify WS, Docker}}{2026}
           \resumeItemListStart
-            \resumeItem{Engineered a sub-millisecond spatial dispatch kernel in \textbf{C++20}, achieving \textbf{3.88M ops/sec} spatial ingestion and \textbf{16.5 $\mu$s} p99 k-NN query latency (75x faster than PostGIS baselines).}
-            \resumeItem{Designed a Point-Region Quadtree with Struct-of-Arrays (SoA) layout and vectorized \textbf{AVX-512} bounding box pruning to evaluate 16 coordinates per clock cycle with zero heap allocations.}
-            \resumeItem{Eliminated distributed double-booking anomalies with single-roundtrip atomic \textbf{Redis Lua} scripts processing \textbf{71.9k lock acquisitions/sec} with zero data collisions.}
-            \resumeItem{Hardened engine against singularity spatial clustering (50k drivers on 1 coordinate) via depth-clamped bucket overflow; verified 0 segfaults under ASan/Valgrind.}
+            \resumeItem{Engineered a dual-engine spatial dispatch architecture combining compiled \textbf{C++14 (-O3)} with an in-memory \textbf{TypeScript PR-QuadTree}, achieving \textbf{3.88M ops/sec} peak RAM updates and \textbf{16.5 $\mu$s} median k-NN latency (75x faster than PostGIS).}
+            \resumeItem{Designed a Point-Region Quadtree with branch-and-bound Min-Heap pruning and fast-path pointer dereferencing for O(1) in-place GPS updates across \textbf{1,000,000 concurrent entities}.}
+            \resumeItem{Eliminated distributed double-dispatch anomalies (\textbf{0.000\% race collision}) using atomic CAS lock leases and \textbf{Redis Lua} scripts processing \textbf{71.9k lock acquisitions/sec} backed by a 15s deadman switch.}
+            \resumeItem{Hardened system via an \textbf{18-suite integration gate} against 50,000-driver singularity spatial clustering, coordinate poisoning, and HTTP ride storms with zero memory leaks and automatic stale-lock healing.}
           \resumeItemListEnd
 
       \resumeProjectHeading

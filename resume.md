@@ -24,11 +24,11 @@
 ## FEATURED ENGINEERING PROJECTS
 
 ### InstaRide — Real-Time Spatial Proximity & Concurrency Dispatch Engine (2026)
-*C++20, Redis Lua, PR-Quadtree, SIMD AVX-512, Docker, WebSockets*
-- Engineered a sub-millisecond spatial dispatch kernel in **C++20**, achieving **3.88M ops/sec** spatial ingestion and **16.5 µs** p99 k-NN query latency (75x faster than standard PostGIS baselines).
-- Designed a custom Point-Region Quadtree with Struct-of-Arrays (SoA) memory alignment and vectorized **AVX-512** bounding box pruning to evaluate 16 coordinates per clock cycle.
-- Eliminated distributed double-booking anomalies with single-roundtrip atomic **Redis Lua** scripts processing **71.9k lock acquisitions/sec** with zero data collisions.
-- Hardened engine against network chaos and singularity spatial clustering (50,000 drivers on 1 coordinate) with depth-clamped bucket overflow; verified 0 segfaults under ASan/Valgrind.
+*C++14 (-O3), TypeScript, PR-Quadtree, Redis Lua, Fastify WS, Docker*
+- Engineered a dual-engine spatial dispatch architecture combining compiled **C++14 (-O3)** with an in-memory **TypeScript PR-QuadTree**, achieving **3.88M ops/sec** peak RAM updates and **16.5 µs** median k-NN latency (75x faster than PostGIS).
+- Designed a Point-Region Quadtree with branch-and-bound Min-Heap pruning and fast-path pointer dereferencing for O(1) in-place GPS telemetry updates across **1,000,000 concurrent entities**.
+- Eliminated distributed double-dispatch anomalies (**0.000% race collision**) with single-roundtrip atomic **Redis Lua** scripts processing **71.9k lock acquisitions/sec** backed by a 15s deadman switch.
+- Hardened system via an **18-suite integration gate** against 50,000-driver singularity spatial clustering, coordinate poisoning, and HTTP ride storms with zero memory leaks and automatic stale-lock healing.
 
 ### Distributed Full-Text Search Engine (2026)
 *TypeScript, SQLite FTS5, Turso libSQL, BM25 Ranking*

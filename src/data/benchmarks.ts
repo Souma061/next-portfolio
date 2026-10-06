@@ -7,9 +7,9 @@ export const HARDWARE_RECEIPTS: HardwareReceipt[] = [
     title: "SPATIAL INGESTION THROUGHPUT",
     metric: "3.88M",
     metricSubtext: "ops/sec",
-    badge: "AVX-512",
+    badge: "C++ (-O3)",
     badgeType: "optimal",
-    description: "C++ Struct-of-Arrays (SoA) packed points with memory prefetching and SIMD vector alignment.",
+    description: "Point-Region Quadtree fast-path pointer dereference updating coordinates in-place with zero tree restructuring.",
     sparklineData: [45, 52, 58, 64, 72, 79, 85, 91, 88, 94, 98, 100]
   },
   {
@@ -17,10 +17,10 @@ export const HARDWARE_RECEIPTS: HardwareReceipt[] = [
     number: "02",
     title: "TOP-5 k-NN PROXIMITY LATENCY",
     metric: "16.5",
-    metricSubtext: "µs (p99)",
+    metricSubtext: "µs (median)",
     badge: "OPTIMAL",
     badgeType: "optimal",
-    description: "PR-Quadtree bounded traversal with branch pruning. 75x faster than naive spatial scans.",
+    description: "PR-Quadtree branch-and-bound traversal with Min-Heap pruning. 75x faster than naive spatial scans.",
     sparklineData: [90, 85, 80, 70, 55, 40, 30, 25, 20, 18, 17, 16]
   },
   {

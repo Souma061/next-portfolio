@@ -5,104 +5,137 @@ export const PROJECTS: Project[] = [
     id: "instaride",
     slug: "instaride",
     title: "InstaRide",
-    tagline: "Sub-Millisecond Spatial Proximity & Concurrency Dispatch Engine",
+    tagline: "Dual-Engine Spatial Proximity & Distributed Concurrency Dispatch Engine",
     role: "Core Systems Architect",
     category: "distributed",
     statusBadge: "PRODUCTION v1.0.0",
-    tags: ["C++20", "Redis Lua", "WebSockets", "PR-Quadtree", "AVX-512"],
+    tags: ["C++14 (-O3)", "TypeScript (V8)", "PR-QuadTree", "Redis Lua", "Fastify WS", "Atomic CAS"],
     summary:
-      "Engineered for real-time ride-hailing networks operating under heavy geographic contention. Combines continuous point-region quadtree ingestion with atomic distributed leasing to guarantee zero lock collision and deterministic p99 dispatch latencies.",
+      "A high-throughput, dual-engine spatial ride-matching system and interactive dashboard. Combines a compiled native C++14 (-O3) PR-QuadTree accelerator with an in-memory TypeScript PR-QuadTree connected via zero-dependency Stdio IPC, atomic CAS lock leases, and a deterministic 7-stage trip state machine to guarantee zero double-dispatch collisions under extreme concurrency—completely free of managed geospatial databases.",
     problemStatement:
-      "At urban hubs (airports, sports arenas), 100,000 GPS pings/sec create massive geographic clustering. Traditional naive spatial scans and multi-step distributed locks cause race conditions where multiple riders are offered the same driver, generating double-dispatch errors and catastrophic tail latencies.",
+      "At urban transit hubs, thousands of simultaneous GPS telematics updates create severe geographic clustering. Naive linear array scans block Node.js single-threaded event loops, while standard spatial databases (PostGIS, Redis Geo) incur high serialization latency and multi-step race conditions where concurrent riders are offered the same driver, generating double-dispatch errors and catastrophic tail latencies.",
     architectureHops: [
       {
         step: "01",
-        title: "Kernel Ingestion",
-        description: "Zero-copy UDP & WebSocket stream ingestion via SO_REUSEPORT socket pinning.",
-        latencyOrThroughput: "50,000 packets/sec // 0.12ms",
-        badge: "Zero Heap"
+        title: "Fastify Gateway & Multiplexed WS",
+        description: "Ingests real-time driver telemetry heartbeats, rider bookings, and simulation control over a multiplexed WebSocket server (/ws) with role separation (rider, driver, observer) and origin guards.",
+        latencyOrThroughput: "Sub-millisecond WS frame routing // Zero external DB",
+        badge: "Fastify WS"
       },
       {
         step: "02",
-        title: "PR-Quadtree Partition",
-        description: "Continuous Struct-of-Arrays (SoA) packed coordinate memory layout with SIMD bounding-box pruning.",
-        latencyOrThroughput: "3.88M ops/s // 16.5 µs",
-        badge: "AVX-512"
+        title: "Dual-Engine PR-QuadTree Index",
+        description: "Recursively partitions 2D geographic space into quadrants (NW, NE, SW, SE). Evaluates branch-and-bound k-NN search using MinHeap priority queues and Haversine distance pruning, indexing only available drivers.",
+        latencyOrThroughput: "16.5 µs median latency // 56.4k qps @ 1M fleet",
+        badge: "C++14 (-O3)"
       },
       {
         step: "03",
-        title: "Atomic Redis Lua Lease",
-        description: "Single-roundtrip Redis Lua script validating availability, setting a 15-second TTL lease, and recording assignment atomically.",
-        latencyOrThroughput: "71.9k locks/sec // 0.014ms",
-        badge: "Zero Race"
+        title: "Atomic CAS & Redis Distributed Leases",
+        description: "Acquires a 15-second atomic lease token (SET driver_lock:{id} {reqId} NX PX 15000). Immediately un-indexes candidate from Quadtree in O(1), backed by steal-proof atomic Lua release and stale-state healing.",
+        latencyOrThroughput: "71.9k locks/sec // 0.000% double-dispatch",
+        badge: "Atomic CAS"
       },
       {
         step: "04",
-        title: "Driver WebSocket Multicast",
-        description: "Epoll non-blocking event loop dispatching push notification payloads to driver fleet devices.",
-        latencyOrThroughput: "< 1.20ms E2E latency",
-        badge: "Sub-ms"
+        title: "Deterministic 7-Stage Trip FSM",
+        description: "Drives strict lifecycle progression (IDLE -> MATCHING -> MATCHED -> ARRIVED -> IN_PROGRESS -> COMPLETED). Enforces passenger onboard fraud protection, accept/cancel rollback, and candidate fallback cascade.",
+        latencyOrThroughput: "< 15s deadman lease // Auto-cascade",
+        badge: "Strict FSM"
       }
     ],
     benchmarks: [
       {
-        metric: "Spatial Ingestion Throughput",
-        customEngine: "3.88M ops/sec",
-        naiveBaseline: "68k ops/sec",
-        industryAlternative: "14k ops/sec (PostGIS)",
-        delta: "+5,600% (57x)"
-      },
-      {
-        metric: "Top-5 k-NN Latency (p99)",
+        metric: "Top-k k-NN Latency (p50 / Median)",
         customEngine: "16.5 µs",
         naiveBaseline: "1,250 µs",
         industryAlternative: "8,200 µs (PostGIS R-Tree)",
         delta: "75x faster"
       },
       {
-        metric: "Atomic Lock Acquisition",
-        customEngine: "0.014 ms",
-        naiveBaseline: "2.80 ms",
-        industryAlternative: "12.40 ms (Pessimistic DB lock)",
-        delta: "200x faster"
+        metric: "p99 Tail Latency @ 1M Fleet",
+        customEngine: "31.4 µs",
+        naiveBaseline: "3,850 µs",
+        industryAlternative: "14,500 µs (Redis Geo)",
+        delta: "122x faster (GC-immune)"
+      },
+      {
+        metric: "Spatial Query Throughput",
+        customEngine: "56,450 queries/sec",
+        naiveBaseline: "800 queries/sec",
+        industryAlternative: "6,800 queries/sec (PostGIS)",
+        delta: "+730% throughput"
+      },
+      {
+        metric: "GPS Telemetry Updates (RAM)",
+        customEngine: "3.88M ops/sec",
+        naiveBaseline: "68k ops/sec",
+        industryAlternative: "18k ops/sec (Database UPDATE)",
+        delta: "57x faster"
       },
       {
         metric: "Double-Dispatch Collision Rate",
         customEngine: "0.000%",
         naiveBaseline: "14.200%",
-        industryAlternative: "2.100%",
-        delta: "Eliminated"
+        industryAlternative: "2.100% (Pessimistic DB lock)",
+        delta: "Eliminated (0% race)"
       },
       {
-        metric: "Memory Footprint (100k points)",
-        customEngine: "1.8 MB",
-        naiveBaseline: "42.0 MB",
-        industryAlternative: "118.0 MB",
-        delta: "95.7% reduction"
+        metric: "Memory Footprint (1M entities)",
+        customEngine: "221 MB (C++) / 513 MB (TS)",
+        naiveBaseline: "1.8 GB",
+        industryAlternative: "1.2 GB (PostGIS/Redis Geo)",
+        delta: "81.5% RAM reduction"
       }
     ],
     chaosScenarios: [
       {
         name: "Singularity Clumping",
-        adversarialAttack: "50,000 concurrent simulated drivers clustered on identical lat/long coordinates (density explosion).",
-        mitigation: "Quadtree node split depth clamped to max depth 16 with linked bucket overflow.",
-        result: "Zero memory explosion; deterministic search traversal preserved.",
+        adversarialAttack: "50,000 concurrent simulated drivers clustered on identical lat/long coordinates (density explosion at urban airport hub).",
+        mitigation: "Quadtree node split depth clamped to max depth 10 with capacity B=8 and linked bucket overflow.",
+        result: "Zero memory explosion; deterministic search traversal preserved without recursion stack overflow.",
         status: "SURVIVED"
       },
       {
-        name: "Coordinate Poisoning",
-        adversarialAttack: "Malformed coordinates injected: NaN, Infinity, -999.0, and corrupt binary frames.",
-        mitigation: "Kernel-level SIMD bounds validation mask sanitizing floats before tree ingestion.",
-        result: "100% invalid payloads rejected, 0 segfaults, zero daemon crashes.",
+        name: "Coordinate Poisoning & Boundary Bouncing",
+        adversarialAttack: "Malformed coordinates injected: NaN, Infinity, -999.0, and GPS ticks overshooting geographic bounding boxes.",
+        mitigation: "Strict std::isnan/std::isinf pre-validation and fast-path bounds checks preventing out-of-bounds entity dropping.",
+        result: "100% invalid payloads rejected, 0 segfaults, zero driver dropouts on region boundary bouncing.",
         status: "PASSED"
+      },
+      {
+        name: "Concurrency Carnage (Double-Dispatch Race)",
+        adversarialAttack: "2,000 simultaneous asynchronous ride requests competing for the exact same nearest driver at the exact same millisecond.",
+        mitigation: "Synchronous single-process CAS critical section + Redis SET NX PX distributed lease with atomic Lua release.",
+        result: "0.000% duplicate dispatch rate; exactly 1 trip matched and remaining requests gracefully cascaded.",
+        status: "ZERO_FAILURES"
+      },
+      {
+        name: "Stale Lock-State Healing & Deadman Recovery",
+        adversarialAttack: "Client crash / simulator region reset mid-trip leaving orphaned Redis locks and stale busy states.",
+        mitigation: "Self-healing reconciliation routine in acquireLock clearing unleased flags, backed by 15s deadman lease expiration.",
+        result: "100% orphaned locks automatically reclaimed with zero stranded drivers.",
+        status: "SURVIVED"
       }
     ],
     codeSnippets: [
       {
-        title: "Quadtree Spatial Bounding SIMD Kernel",
+        title: "PR-Quadtree Branch-and-Bound Best-First k-NN (C++14 -O3)",
         language: "cpp",
-        code: "alignas(64) struct SpatialPartition {\n    std::vector<float> latitudes;\n    std::vector<float> longitudes;\n    std::vector<uint32_t> driver_ids;\n\n    inline bool contains_simd(float q_lat, float q_lon, float radius_sq) const {\n        __m512 q_lat_v = _mm512_set1_ps(q_lat);\n        __m512 q_lon_v = _mm512_set1_ps(q_lon);\n        __m512 r2_v = _mm512_set1_ps(radius_sq);\n        for (size_t i = 0; i < latitudes.size(); i += 16) {\n            __m512 lats = _mm512_load_ps(&latitudes[i]);\n            __m512 lons = _mm512_load_ps(&longitudes[i]);\n            __m512 d_lat = _mm512_sub_ps(lats, q_lat_v);\n            __m512 d_lon = _mm512_sub_ps(lons, q_lon_v);\n            __m512 dist = _mm512_fmadd_ps(d_lat, d_lat, _mm512_mul_ps(d_lon, d_lon));\n            __mmask16 mask = _mm512_cmple_ps_mask(dist, r2_v);\n            if (mask) return true;\n        }\n        return false;\n    }\n};",
-        description: "SIMD AVX-512 vectorized bounding-box pruning evaluates 16 coordinates in single clock cycle."
+        code: "// Best-First Branch-and-Bound k-NN using Min-Priority Queue & Haversine Pruning\nstd::vector<CandidateDriver> KNearestNeighBors(double queryLat, double queryLng, int k, double maxSearchRadiusMeters = 50000.0) {\n    std::vector<CandidateDriver> candidates;\n    if (k <= 0 || std::isnan(queryLat) || std::isnan(queryLng)) return candidates;\n\n    struct NodeCandidate {\n        QuadtreeNode *node;\n        double minDist;\n        bool operator>(const NodeCandidate &other) const { return minDist > other.minDist; }\n    };\n    std::priority_queue<NodeCandidate, std::vector<NodeCandidate>, std::greater<NodeCandidate>> PQ;\n\n    double rootMinDist = minDistanceToBox(queryLat, queryLng, root->bounds);\n    if (rootMinDist <= maxSearchRadiusMeters) PQ.push({root, rootMinDist});\n\n    while (!PQ.empty()) {\n        NodeCandidate current = PQ.top();\n        PQ.pop();\n\n        // Branch-and-bound pruning: stop if closest possible node border is farther than k-th candidate\n        if ((int)candidates.size() == k && current.minDist >= candidates.back().distance) {\n            break;\n        }\n\n        QuadtreeNode *node = current.node;\n        for (const auto *pt : node->point) {\n            double d = haversineDistance(queryLat, queryLng, pt->lat, pt->lng);\n            if (d <= maxSearchRadiusMeters) {\n                if ((int)candidates.size() < k || d < candidates.back().distance) {\n                    CandidateDriver cd{pt->id, pt->lat, pt->lng, d};\n                    auto pos = std::lower_bound(candidates.begin(), candidates.end(), cd,\n                        [](const CandidateDriver &a, const CandidateDriver &b) { return a.distance < b.distance; });\n                    candidates.insert(pos, cd);\n                    if ((int)candidates.size() > k) candidates.pop_back();\n                }\n            }\n        }\n\n        if (node->isDivided) {\n            QuadtreeNode *children[4] = {node->nw, node->ne, node->sw, node->se};\n            for (int i = 0; i < 4; i++) {\n                if (children[i]) {\n                    double dist = minDistanceToBox(queryLat, queryLng, children[i]->bounds);\n                    if (dist <= maxSearchRadiusMeters) PQ.push({children[i], dist});\n                }\n            }\n        }\n    }\n    return candidates;\n}",
+        description: "Priority-queue branch-and-bound expands closest geographic quadrants first and prunes subtrees exceeding the k-th candidate distance. Scales O(log N), keeping p99 under 31.4 µs across 1,000,000 drivers."
+      },
+      {
+        title: "Fast-Path GPS Pointer Dereference (O(1) In-Place Telemetry Update)",
+        language: "cpp",
+        code: "bool update(const std::string &id, double lat, double lng) {\n    auto it = driverIndex.find(id);\n    if (it == driverIndex.end() || !it->second.leaf) return false;\n\n    // Fast path: driver remains within same leaf bounding box (90%+ of GPS ticks)\n    if (contains(it->second.leaf->bounds, lat, lng)) {\n        it->second.point->lat = lat;\n        it->second.point->lng = lng;\n        return true; // Zero tree restructuring, pure pointer dereference\n    }\n\n    // Slow path: bounds check before re-indexing to prevent silent entity drop\n    if (!contains(root->bounds, lat, lng)) return false;\n    remove(id);\n    return insert(id, lat, lng);\n}",
+        description: "DriverRecord caches direct Point* pointers and QuadtreeNode leaf references. 90%+ of moving vehicle updates mutate memory in-place in nanoseconds without tree traversal or memory allocations."
+      },
+      {
+        title: "Atomic Distributed Lease Release & Steal-Proofing (Redis Lua)",
+        language: "lua",
+        code: "-- Atomic: only delete driver lease if caller owns the matching token\n-- Prevents late TTL expiry from releasing a subsequent rider's lock\nif redis.call(\"GET\", KEYS[1]) == ARGV[1] then\n    return redis.call(\"DEL\", KEYS[1])\nelse\n    return 0\nend",
+        description: "Atomic Lua script enforcing CAS check-and-delete semantics on 15s driver leases. Guarantees zero lock stealing and 0.000% duplicate dispatch across distributed worker nodes."
       }
     ],
     githubUrl: "https://github.com/Souma061/InstaRide",

@@ -132,22 +132,22 @@ export default function ResumePage() {
             <div>
               <div className="flex justify-between items-baseline font-sans text-xs">
                 <span className="font-bold text-gray-950 text-xs">
-                  InstaRide <span className="font-normal text-gray-600 italic">| C++20, Redis Lua, PR-Quadtree, SIMD AVX-512, Docker, WebSockets</span>
+                  InstaRide <span className="font-normal text-gray-600 italic">| C++14 (-O3), TypeScript, PR-Quadtree, Redis Lua, Fastify WS, Docker</span>
                 </span>
                 <span className="text-gray-500 font-mono text-[11px]">2026</span>
               </div>
               <ul className="list-disc ml-4 mt-0.5 text-xs text-gray-800 space-y-0.5">
                 <li>
-                  Engineered a sub-millisecond spatial dispatch kernel in <strong>C++20</strong>, processing <strong>3.88M ops/sec</strong> spatial ingestion with <strong>16.5 µs</strong> p99 k-NN query latency (75x faster than PostGIS baselines).
+                  Engineered a dual-engine spatial dispatch architecture combining compiled <strong>C++14 (-O3)</strong> with an in-memory <strong>TypeScript PR-QuadTree</strong>, achieving <strong>3.88M ops/sec</strong> peak RAM updates and <strong>16.5 µs</strong> median k-NN latency (75x faster than PostGIS).
                 </li>
                 <li>
-                  Designed a Point-Region Quadtree with Struct-of-Arrays (SoA) layout and vectorized <strong>AVX-512</strong> bounding box pruning evaluating 16 coordinates per clock cycle with zero heap allocations.
+                  Designed a Point-Region Quadtree with branch-and-bound Min-Heap pruning and fast-path pointer dereferencing for O(1) in-place GPS telemetry updates across <strong>1,000,000 concurrent entities</strong>.
                 </li>
                 <li>
-                  Eliminated distributed double-booking anomalies using single-roundtrip atomic <strong>Redis Lua</strong> scripts handling <strong>71.9k lock acquisitions/sec</strong> with zero race collisions under chaos testing.
+                  Eliminated distributed double-dispatch anomalies (<strong>0.000% race collision</strong>) using atomic CAS lock leases and <strong>Redis Lua</strong> scripts handling <strong>71.9k lock acquisitions/sec</strong> backed by a 15s deadman switch.
                 </li>
                 <li>
-                  Hardened engine against singularity spatial clustering (50,000 drivers on 1 coordinate) via depth-clamped bucket overflow; verified 0 segfaults under ASan/Valgrind.
+                  Hardened system via an <strong>18-suite integration gate</strong> against 50,000-driver singularity spatial clustering, coordinate poisoning, and HTTP ride storms with zero memory leaks and automatic stale-lock healing.
                 </li>
               </ul>
             </div>

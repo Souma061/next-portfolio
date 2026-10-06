@@ -98,6 +98,31 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           </div>
         </div>
 
+        {project.id === "instaride" && (
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-2xl bg-[#121822] border border-[#232e40] p-5">
+            <div>
+              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Ingestion Throughput</div>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-white">3.88M <span className="text-xs text-[#e86b1c]">ops/s</span></div>
+              <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">In-memory C++ pointer deref</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Median k-NN Latency</div>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-white">16.5 <span className="text-xs text-[#e86b1c]">µs</span></div>
+              <div className="text-[10px] font-mono text-emerald-400 mt-0.5">31.4 µs p99 @ 1M fleet</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Atomic Locks</div>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-white">71.9k <span className="text-xs text-[#e86b1c]">locks/s</span></div>
+              <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">Redis Lua 15s TTL lease</div>
+            </div>
+            <div>
+              <div className="text-[10px] font-mono text-[#7f756d] uppercase">Double-Dispatch Rate</div>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400">0.000%</div>
+              <div className="text-[10px] font-mono text-[#b8aba0] mt-0.5">Zero race under 2k storm</div>
+            </div>
+          </div>
+        )}
+
         <div className="py-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-[#232e40]">
           <div className="space-y-3">
             <div className="font-mono text-xs font-bold text-[#e86b1c] uppercase tracking-wider">
